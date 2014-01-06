@@ -5,6 +5,7 @@
 #= require jquery-fileupload/jquery.fileupload
 #= require jquery-fileupload/jquery.fileupload-process
 #= require jquery-fileupload/jquery.fileupload-image
+#= require vendors/tmpl
 
 $ = jQuery
 
@@ -45,14 +46,28 @@ $.fn.S3Uploader = (options) ->
       disableImagePreview: true
 
       send: (e, data) ->
-        console.log "WHAT THE FUCK1"
         file = data.files[0]
+        if $('#template-upload').length > 0
+          data.context = $($.trim(tmpl("template-upload", file)))
+          data.context = settings.progress_bar_target
+        else if !settings.allow_multiple_files
+          console.log "WHAT THE FUCK-ADD3"
+          
+        console.log "WHAT THE FUCK1"
+        
         if settings.before_send
           settings.before_send(file)
 
       start: (e) ->
         console.log "WHAT THE FUCK2"
         $uploadForm.trigger("s3_uploads_start", [e])
+
+      progress: (e, data) ->
+        console.log data
+        if data.context
+          console.log "WHAT THE FUCK10"
+          progress = parseInt(data.loaded / data.total * 100, 10)
+          data.context.find('.bar').css('width', progress + '%')
 
       done: (e, data) ->
         content = build_content_object $uploadForm, data.files[0], data.result
@@ -85,6 +100,7 @@ $.fn.S3Uploader = (options) ->
 
       formData: (form) ->
         console.log "WHAT THE FUCK4"
+
         data = form.serializeArray()
         fileType = ""
         if "type" of @files[0]
@@ -93,30 +109,40 @@ $.fn.S3Uploader = (options) ->
           name: "Content-Type"
           value: fileType
 
+        key = $uploadForm.data("key").replace('{timestamp}', new Date().getTime()).replace('{unique_id}', @files[0].unique_id)
+
         data[1].value = settings.path + data[1].value #the key
         data
 
-    build_content_object = ($uploadForm, file, result) ->
-      content = {}
-      if result # Use the S3 response to set the URL to avoid character encodings bugs
-        content.url            = $(result).find("Location").text()
-        content.filepath       = $('<a />').attr('href', content.url)[0].pathname
-      else # IE <= 9 retu      rn a null result object so we use the file object instead
-        domain                 = $uploadForm.attr('action')
-        content.filepath       = $uploadForm.find('input[name=key]').val().replace('/${filename}', '')
-        content.url            = domain + content.filepath + '/' + encodeURIComponent(file.name)
+  build_content_object = ($uploadForm, file, result) ->
+    content = {}
+    if result # Use the S3 response to set the URL to avoid character encodings bugs
+      content.url            = $(result).find("Location").text()
+      content.filepath       = $('<a />').attr('href', content.url)[0].pathname
+    else # IE <= 9 retu      rn a null result object so we use the file object instead
+      domain                 = $uploadForm.attr('action')
+      content.filepath       = $uploadForm.find('input[name=key]').val().replace('/${filename}', '')
+      content.url            = domain + content.filepath + '/' + encodeURIComponent(file.name)
 
-      content.filename         = file.name
-      content.filesize         = file.size if 'size' of file
-      content.lastModifiedDate = file.lastModifiedDate if 'lastModifiedDate' of file
-      content.filetype         = file.type if 'type' of file
-      content.unique_id        = file.unique_id if 'unique_id' of file
-      content.relativePath     = build_relativePath(file) if has_relativePath(file)
-      content = $.extend content, settings.additional_data if settings.additional_data
-      content
+    content.filename         = file.name
+    content.filesize         = file.size if 'size' of file
+    content.lastModifiedDate = file.lastModifiedDate if 'lastModifiedDate' of file
+    content.filetype         = file.type if 'type' of file
+    content.unique_id        = file.unique_id if 'unique_id' of file
+    content.relativePath     = build_relativePath(file) if has_relativePath(file)
+    content = $.extend content, settings.additional_data if settings.additional_data
+    content
+
+  has_relativePath = (file) ->
+    file.relativePath || file.webkitRelativePath
+
+  build_relativePath = (file) ->
+    file.relativePath || (file.webkitRelativePath.split("/")[0..-2].join("/") + "/" if file.webkitRelativePath)
 
   #public methods
   @initialize = ->
+    $uploadForm.data("key", $uploadForm.find("input[name='key']").val())
+
     setUploadForm()
     this
 
