@@ -26,6 +26,8 @@ $.fn.S3Uploader = (options) ->
     before_send: null
     remove_completed_progress_bar: true
     remove_failed_progress_bar: false
+    callback_url: null
+    callback_method: null
     image_min_width: 0
     image_min_height: 0
     image_max_width: 1200
@@ -36,7 +38,6 @@ $.fn.S3Uploader = (options) ->
   current_files = []
 
   setUploadForm = ->
-    console.log "WHAT THE FUCK"
     $uploadForm.fileupload
       disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator && navigator.userAgent)
       imageMinWidth: settings.image_min_width
@@ -50,38 +51,27 @@ $.fn.S3Uploader = (options) ->
         if $('#template-upload').length > 0
           data.context = $($.trim(tmpl("template-upload", file)))
           data.context = settings.progress_bar_target
-        else if !settings.allow_multiple_files
-          console.log "WHAT THE FUCK-ADD3"
-          
-        console.log "WHAT THE FUCK1"
         
         if settings.before_send
           settings.before_send(file)
 
       start: (e) ->
-        console.log "WHAT THE FUCK2"
         $uploadForm.trigger("s3_uploads_start", [e])
 
       progress: (e, data) ->
         console.log data
         if data.context
-          console.log "WHAT THE FUCK10"
           progress = parseInt(data.loaded / data.total * 100, 10)
           data.context.find('.bar').css('width', progress + '%')
 
       done: (e, data) ->
         content = build_content_object $uploadForm, data.files[0], data.result
-        
-        callback_url = $uploadForm.data('callback-url')
-        console.log "=======WHAT THE FUCK5"
-        console.log callback_url
-        console.log "=======WHAT THE FUCK5"
-        if callback_url || true
+        if settings.callback_url
           content[$uploadForm.data('callback-param')] = content.url
 
           $.ajax
-            type: "POST"
-            url: "/cleanings/image_upload"
+            type: settings.callback_method
+            url: settings.callback_url
             data: content
             beforeSend: ( xhr, settings )       -> $uploadForm.trigger( 'ajax:beforeSend', [xhr, settings] )
             complete:   ( xhr, status )         -> $uploadForm.trigger( 'ajax:complete', [xhr, status] )
@@ -92,15 +82,12 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_upload_complete", [content])
 
       fail: (e, data) ->
-        console.log "WHAT THE FUCK3"
         content = build_content_object $uploadForm, data.files[0], data.result
         content.error_thrown = data.errorThrown
 
         $uploadForm.trigger("s3_upload_failed", [content])
 
       formData: (form) ->
-        console.log "WHAT THE FUCK4"
-
         data = form.serializeArray()
         fileType = ""
         if "type" of @files[0]
