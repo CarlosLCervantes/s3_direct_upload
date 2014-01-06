@@ -58,7 +58,7 @@ $.fn.S3Uploader = (options) ->
 
       done: (e, data) ->
         content = build_content_object $uploadForm, data.files[0], data.result
-
+        alert("A")
         callback_url = $uploadForm.data('callback-url')
         if callback_url
           content[$uploadForm.data('callback-param')] = content.url
