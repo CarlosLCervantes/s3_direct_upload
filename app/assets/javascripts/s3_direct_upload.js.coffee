@@ -55,6 +55,7 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_uploads_start", [e])
 
       done: (e, data) ->
+        console.log "WHAT THE FUCK5"
         content = build_content_object $uploadForm, data.files[0], data.result
         $uploadForm.trigger("s3_upload_complete", [content])
 
