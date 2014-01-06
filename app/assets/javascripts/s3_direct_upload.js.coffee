@@ -55,9 +55,10 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_uploads_start", [e])
 
       done: (e, data) ->
-        console.log "WHAT THE FUCK5"
         callback_url = $uploadForm.data('callback-url')
-        
+        console.log "=======WHAT THE FUCK5"
+        console.log callback_url
+        console.log "=======WHAT THE FUCK5"
         if callback_url
           content[$uploadForm.data('callback-param')] = content.url
 
