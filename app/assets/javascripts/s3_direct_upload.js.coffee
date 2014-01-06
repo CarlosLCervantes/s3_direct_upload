@@ -27,8 +27,8 @@ $.fn.S3Uploader = (options) ->
     remove_failed_progress_bar: false
     image_min_width: 0
     image_min_height: 0
-    image_max_width: 1200
-    image_max_height: 1200
+    image_max_width: 800
+    image_max_height: 800
 
   $.extend settings, options
 
