@@ -58,7 +58,6 @@ $.fn.S3Uploader = (options) ->
 
       done: (e, data) ->
         content = build_content_object $uploadForm, data.files[0], data.result
-        alert("A")
         callback_url = $uploadForm.data('callback-url')
         if callback_url
           content[$uploadForm.data('callback-param')] = content.url
@@ -87,10 +86,22 @@ $.fn.S3Uploader = (options) ->
         if "type" of @files[0]
           fileType = @files[0].type
         data.push
-          name: "Content-Type"
+          name: "content-type"
           value: fileType
 
-        data[1].value = settings.path + data[1].value #the key
+        key = $uploadForm.data("key").replace('{timestamp}', new Date().getTime()).replace('{unique_id}', @files[0].unique_id)
+
+        # substitute upload timestamp and unique_id into key
+        key_field = $.grep data, (n) ->
+          n if n.name == "key"
+
+        if key_field.length > 0
+          key_field[0].value = settings.path + key
+
+        # IE <= 9 doesn't have XHR2 hence it can't use formData
+        # replace 'key' field to submit form
+        unless 'FormData' of window
+          $uploadForm.find("input[name='key']").val(settings.path + key)
         data
 
     build_content_object = ($uploadForm, file, result) ->
