@@ -35,6 +35,7 @@ $.fn.S3Uploader = (options) ->
   current_files = []
 
   setUploadForm = ->
+    console.log "WHAT THE FUCK"
     $uploadForm.fileupload
       disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator && navigator.userAgent)
       imageMinWidth: settings.image_min_width
