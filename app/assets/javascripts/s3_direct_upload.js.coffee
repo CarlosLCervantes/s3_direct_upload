@@ -59,7 +59,6 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_uploads_start", [e])
 
       progress: (e, data) ->
-        console.log data
         if data.context
           progress = parseInt(data.loaded / data.total * 100, 10)
           data.context.find('.bar').css('width', progress + '%')
@@ -96,9 +95,18 @@ $.fn.S3Uploader = (options) ->
           name: "Content-Type"
           value: fileType
 
+        @files[0].unique_id = Math.random().toString(36).substr(2,16)
         key = $uploadForm.data("key").replace('{timestamp}', new Date().getTime()).replace('{unique_id}', @files[0].unique_id)
+        key_field = $.grep data, (n) ->
+          n if n.name == "key"
 
-        data[1].value = settings.path + data[1].value #the key
+        if key_field.length > 0
+          key_field[0].value = settings.path + key
+
+        unless 'FormData' of window
+          $uploadForm.find("input[name='key']").val(settings.path + key)
+
+        #data[1].value = settings.path + data[1].value
         data
 
   build_content_object = ($uploadForm, file, result) ->
