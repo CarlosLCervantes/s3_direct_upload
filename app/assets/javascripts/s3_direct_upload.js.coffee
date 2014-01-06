@@ -55,6 +55,8 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_uploads_start", [e])
 
       done: (e, data) ->
+        content = build_content_object $uploadForm, data.files[0], data.result
+        
         callback_url = $uploadForm.data('callback-url')
         console.log "=======WHAT THE FUCK5"
         console.log callback_url
@@ -106,7 +108,10 @@ $.fn.S3Uploader = (options) ->
 
       content.filename         = file.name
       content.filesize         = file.size if 'size' of file
+      content.lastModifiedDate = file.lastModifiedDate if 'lastModifiedDate' of file
       content.filetype         = file.type if 'type' of file
+      content.unique_id        = file.unique_id if 'unique_id' of file
+      content.relativePath     = build_relativePath(file) if has_relativePath(file)
       content = $.extend content, settings.additional_data if settings.additional_data
       content
 
