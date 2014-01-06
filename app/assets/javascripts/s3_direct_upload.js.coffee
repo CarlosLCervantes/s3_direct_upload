@@ -59,12 +59,12 @@ $.fn.S3Uploader = (options) ->
         console.log "=======WHAT THE FUCK5"
         console.log callback_url
         console.log "=======WHAT THE FUCK5"
-        if callback_url
+        if callback_url || true
           content[$uploadForm.data('callback-param')] = content.url
 
           $.ajax
-            type: $uploadForm.data('callback-method')
-            url: callback_url
+            type: "POST"
+            url: "/cleanings/image_upload"
             data: content
             beforeSend: ( xhr, settings )       -> $uploadForm.trigger( 'ajax:beforeSend', [xhr, settings] )
             complete:   ( xhr, status )         -> $uploadForm.trigger( 'ajax:complete', [xhr, status] )
