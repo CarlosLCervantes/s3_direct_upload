@@ -44,11 +44,13 @@ $.fn.S3Uploader = (options) ->
       disableImagePreview: true
 
       send: (e, data) ->
+        console.log "WHAT THE FUCK1"
         file = data.files[0]
         if settings.before_send
           settings.before_send(file)
 
       start: (e) ->
+        console.log "WHAT THE FUCK2"
         $uploadForm.trigger("s3_uploads_start", [e])
 
       done: (e, data) ->
@@ -56,12 +58,14 @@ $.fn.S3Uploader = (options) ->
         $uploadForm.trigger("s3_upload_complete", [content])
 
       fail: (e, data) ->
+        console.log "WHAT THE FUCK3"
         content = build_content_object $uploadForm, data.files[0], data.result
         content.error_thrown = data.errorThrown
 
         $uploadForm.trigger("s3_upload_failed", [content])
 
       formData: (form) ->
+        console.log "WHAT THE FUCK4"
         data = form.serializeArray()
         fileType = ""
         if "type" of @files[0]
