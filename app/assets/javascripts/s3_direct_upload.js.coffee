@@ -147,4 +147,7 @@ $.fn.S3Uploader = (options) ->
   @additional_data = (new_data) ->
     settings.additional_data = new_data
 
+  @callback_url = (new_callback_url) ->
+    settings.callback_url = new_callback_url
+
   @initialize()
