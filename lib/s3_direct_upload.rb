@@ -11,3 +11,4 @@ require 's3_direct_upload/engine' if defined?(Rails)
 require 's3_direct_upload/railtie' if defined?(Rails)
 
 ActionView::Base.send(:include, S3DirectUpload::UploadHelper) if defined?(ActionView::Base)
+ActionView::Base.send(:include, S3DirectUpload::SimpleUploadHelper) if defined?(ActionView::Base)
